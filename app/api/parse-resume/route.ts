@@ -16,12 +16,21 @@ export async function POST(request: NextRequest) {
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
+
+    // Check file signature magic numbers (highly reliable on mobile/tablets)
+    const isPdfMagic = buffer.toString('ascii', 0, 4) === '%PDF'
+    const isDocxMagic = buffer.length >= 4 && buffer.readUInt32BE(0) === 0x504B0304 // ZIP/DOCX container 'PK\x03\x04'
+
     const fileName = file.name || ''
     const mimeType = file.type || ''
 
     let fileType: 'pdf' | 'docx' | null = null
 
-    if (mimeType === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf')) {
+    if (isPdfMagic) {
+      fileType = 'pdf'
+    } else if (isDocxMagic) {
+      fileType = 'docx'
+    } else if (mimeType === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf')) {
       fileType = 'pdf'
     } else if (
       mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
@@ -60,8 +69,8 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json({ text: text.trim(), fileName, fileType })
-  } catch (err) {
+  } catch (err: any) {
     console.error('Parse resume error:', err)
-    return NextResponse.json({ error: 'Failed to parse resume.' }, { status: 500 })
+    return NextResponse.json({ error: `Failed to parse resume: ${err?.message || err}` }, { status: 500 })
   }
 }
