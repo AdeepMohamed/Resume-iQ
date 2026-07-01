@@ -50,10 +50,8 @@ export async function POST(request: NextRequest) {
 
     if (fileType === 'pdf') {
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { PDFParse } = require('pdf-parse')
-      const parser = new PDFParse(new Uint8Array(buffer))
-      await parser.load()
-      const data = await parser.getText()
+      const pdf = require('pdf-parse')
+      const data = await pdf(buffer)
       text = data.text
     } else if (fileType === 'docx') {
       const mammoth = await import('mammoth')
