@@ -91,9 +91,12 @@ export default function LandingPage() {
             <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
             <a href="#testimonials" className="hover:text-white transition-colors">Reviews</a>
           </div>
-          <div className="flex items-center gap-3">
-            <Link href="/login" className="btn-secondary text-sm px-4 py-2">Sign In</Link>
-            <Link href="/register" className="btn-primary text-sm px-4 py-2">Get Started Free</Link>
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="btn-secondary text-xs sm:text-sm px-3 sm:px-4 py-2">Sign In</Link>
+            <Link href="/register" className="btn-primary text-xs sm:text-sm px-3 sm:px-4 py-2">
+              <span className="hidden sm:inline">Get Started Free</span>
+              <span className="sm:hidden">Get Started</span>
+            </Link>
           </div>
         </div>
       </nav>
@@ -123,7 +126,7 @@ export default function LandingPage() {
             AI-Powered Resume Intelligence
           </motion.div>
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-tight mb-6">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold leading-tight mb-6">
             Land Your Dream Job<br />
             <span className="gradient-text">10x Faster</span>
           </h1>

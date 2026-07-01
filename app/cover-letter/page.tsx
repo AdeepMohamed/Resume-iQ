@@ -1,9 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
-import { Mail, Upload, Briefcase, Loader2, Copy, CheckCircle } from 'lucide-react'
+import { Mail, Upload, Briefcase, Loader2, Copy, CheckCircle, FileText } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 
 const TONES = ['professional', 'enthusiastic', 'formal', 'conversational', 'creative']
 
@@ -14,6 +15,40 @@ export default function CoverLetterPage() {
   const [result, setResult] = useState('')
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
+
+  // Saved Resumes integration
+  const [resumes, setResumes] = useState<{ id: string; file_name: string; raw_text: string }[]>([])
+  const [selectedResumeId, setSelectedResumeId] = useState<string>('')
+  const [loadingResumes, setLoadingResumes] = useState(false)
+
+  useEffect(() => {
+    async function loadResumes() {
+      setLoadingResumes(true)
+      try {
+        const supabase = createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        const { data, error } = await supabase
+          .from('resumes')
+          .select('id, file_name, raw_text')
+          .order('created_at', { ascending: false })
+          .limit(10)
+        if (error) throw error
+        if (data) {
+          setResumes(data)
+          if (data.length > 0) {
+            setResumeText(data[0].raw_text)
+            setSelectedResumeId(data[0].id)
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load saved resumes:', err)
+      } finally {
+        setLoadingResumes(false)
+      }
+    }
+    loadResumes()
+  }, [])
 
   const handleGenerate = async () => {
     if (!resumeText.trim()) { toast.error('Please paste your resume text'); return }
@@ -52,17 +87,79 @@ export default function CoverLetterPage() {
       <div className="grid lg:grid-cols-2 gap-6">
         {/* Input */}
         <div className="space-y-4">
-          <div className="glass-card p-5">
-            <div className="flex items-center gap-2 mb-3">
-              <Upload size={16} className="text-indigo-400" />
-              <span className="font-medium text-sm">Your Resume</span>
-              <span className="text-xs text-white/30">(paste text)</span>
+          <div className="glass-card p-5 space-y-4">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
+              <div className="flex items-center gap-2">
+                <Upload size={16} className="text-indigo-400" />
+                <span className="font-medium text-sm">Your Resume</span>
+              </div>
+              
+              {/* Native file upload parsing */}
+              <label className="text-xs text-indigo-400 hover:text-indigo-300 font-medium cursor-pointer flex items-center gap-1">
+                <input
+                  type="file"
+                  accept=".pdf,.docx"
+                  className="hidden"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    const toastId = toast.loading('Parsing resume...')
+                    try {
+                      const formData = new FormData()
+                      formData.append('file', file)
+                      const res = await fetch('/api/parse-resume', { method: 'POST', body: formData })
+                      const data = await res.json()
+                      if (!res.ok) throw new Error(data.error || 'Failed to parse')
+                      setResumeText(data.text)
+                      setSelectedResumeId('')
+                      toast.success('Resume parsed successfully!', { id: toastId })
+                    } catch (err: any) {
+                      toast.error(err.message || 'Failed to parse resume', { id: toastId })
+                    }
+                  }}
+                />
+                <FileText size={12} />
+                <span>Upload File</span>
+              </label>
             </div>
+
+            {loadingResumes ? (
+              <div className="flex items-center gap-2 text-xs text-white/40">
+                <Loader2 size={12} className="animate-spin text-indigo-400" />
+                <span>Loading saved resumes…</span>
+              </div>
+            ) : resumes.length > 0 ? (
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs text-white/50">Load from Saved Resumes</label>
+                <select
+                  value={selectedResumeId}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setSelectedResumeId(val)
+                    const found = resumes.find(r => r.id === val)
+                    if (found) setResumeText(found.raw_text)
+                  }}
+                  className="input-field py-2 text-xs font-sans"
+                  style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                >
+                  <option value="" className="bg-[#0f1422] text-white/50">-- Select a resume --</option>
+                  {resumes.map(r => (
+                    <option key={r.id} value={r.id} className="bg-[#0f1422] text-white">
+                      {r.file_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : null}
+
             <textarea
               value={resumeText}
-              onChange={e => setResumeText(e.target.value)}
-              placeholder="Paste your resume text here..."
-              className="input-field h-48 resize-none text-sm"
+              onChange={e => {
+                setResumeText(e.target.value)
+                setSelectedResumeId('')
+              }}
+              placeholder="Paste your resume text here, upload a file, or select a saved resume..."
+              className="input-field h-40 resize-none text-sm"
             />
           </div>
 

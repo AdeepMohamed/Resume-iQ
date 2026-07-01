@@ -120,15 +120,15 @@ export default function AnalyzePage() {
         {step === 'upload' && (
           <motion.div key="upload" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="space-y-6">
             {/* Upload area */}
-            <div
+            <label
+              htmlFor="resume-input"
+              className={cn(
+                'border-2 border-dashed rounded-2xl p-8 sm:p-12 text-center transition-all duration-300 cursor-pointer block',
+                dragging ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/10 hover:border-white/20 hover:bg-white/2'
+              )}
               onDrop={handleDrop}
               onDragOver={e => { e.preventDefault(); setDragging(true) }}
               onDragLeave={() => setDragging(false)}
-              className={cn(
-                'border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 cursor-pointer',
-                dragging ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/10 hover:border-white/20 hover:bg-white/2'
-              )}
-              onClick={() => document.getElementById('resume-input')?.click()}
             >
               <input id="resume-input" type="file" accept=".pdf,.docx" className="hidden"
                 onChange={e => e.target.files?.[0] && handleFile(e.target.files[0])} />
@@ -142,7 +142,7 @@ export default function AnalyzePage() {
                     <div className="font-medium">{file.name}</div>
                     <div className="text-sm text-white/40">{(file.size / 1024).toFixed(0)} KB</div>
                   </div>
-                  <button onClick={e => { e.stopPropagation(); setFile(null) }} className="ml-4 text-white/30 hover:text-red-400">
+                  <button onClick={e => { e.preventDefault(); e.stopPropagation(); setFile(null) }} className="ml-4 text-white/30 hover:text-red-400">
                     <X size={18} />
                   </button>
                 </div>
@@ -153,7 +153,7 @@ export default function AnalyzePage() {
                   <p className="text-white/30 text-sm">PDF or DOCX · Max 5 MB</p>
                 </>
               )}
-            </div>
+            </label>
 
             {/* Job description */}
             <div className="glass-card p-6">
@@ -206,25 +206,25 @@ export default function AnalyzePage() {
         {step === 'results' && result && (
           <motion.div key="results" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
             {/* Header actions */}
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-2 text-emerald-400">
                 <CheckCircle size={18} />
                 <span className="font-medium">Analysis Complete</span>
               </div>
-              <div className="flex gap-3">
-                <button onClick={reset} className="btn-secondary text-sm px-4 py-2">
+              <div className="flex flex-col sm:flex-row gap-2.5 w-full sm:w-auto">
+                <button onClick={reset} className="btn-secondary text-sm px-4 py-2 w-full sm:w-auto justify-center">
                   <RotateCcw size={14} />
                   New Analysis
                 </button>
-                <button onClick={handleSave} disabled={saving || saved} className="btn-primary text-sm px-4 py-2">
+                <button onClick={handleSave} disabled={saving || saved} className="btn-primary text-sm px-4 py-2 w-full sm:w-auto justify-center">
                   {saved ? <><CheckCircle size={14} /> Saved</> : saving ? <><Loader2 size={14} className="animate-spin" /> Saving…</> : <><Save size={14} /> Save to History</>}
                 </button>
               </div>
             </div>
 
             {/* Score cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="glass-card p-5 col-span-2 md:col-span-1">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="glass-card p-5 sm:col-span-2 md:col-span-1">
                 <div className="text-xs text-white/40 mb-3">ATS Score</div>
                 <div className="flex items-end gap-2">
                   <div className={`text-5xl font-bold ${getScoreColor(result.atsScore)}`}>{result.atsScore}</div>
@@ -333,16 +333,16 @@ export default function AnalyzePage() {
                       style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
                       <button
                         onClick={() => setExpandedSuggestion(expandedSuggestion === i ? null : i)}
-                        className="w-full flex items-center justify-between px-4 py-3 text-left"
+                        className="w-full flex items-center justify-between px-4 py-3 text-left gap-2 min-w-0"
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs px-2 py-0.5 rounded-full font-medium"
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0"
                             style={{ background: 'rgba(99,102,241,0.2)', color: '#a5b4fc' }}>
                             {s.section}
                           </span>
-                          <span className="text-sm text-white/60 truncate">{s.original.slice(0, 60)}…</span>
+                          <span className="text-sm text-white/60 truncate">{s.original}</span>
                         </div>
-                        {expandedSuggestion === i ? <ChevronUp size={16} className="text-white/40" /> : <ChevronDown size={16} className="text-white/40" />}
+                        {expandedSuggestion === i ? <ChevronUp size={16} className="text-white/40 flex-shrink-0" /> : <ChevronDown size={16} className="text-white/40 flex-shrink-0" />}
                       </button>
                       <AnimatePresence>
                         {expandedSuggestion === i && (

@@ -119,72 +119,56 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
 
   return (
-    <div 
-      style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'auto 1fr', 
-        height: '100vh', 
-        width: '100vw', 
-        overflow: 'hidden', 
-        background: '#080B14' 
-      }}
-    >
-
-
-      {/* Sidebar Wrapper Column */}
-      <div className="relative h-full flex flex-row">
-        {/* Desktop sidebar */}
-        <motion.aside
-          animate={{ width: collapsed ? 72 : 240 }}
-          transition={{ duration: 0.3, ease: 'easeInOut' }}
-          className="hidden md:flex flex-col flex-shrink-0 relative overflow-hidden h-full"
-          style={{
-            width: collapsed ? 72 : 240,
-            background: '#0c1020',
-            borderRight: '1px solid rgba(255,255,255,0.06)',
-          }}
+    <div className="flex h-screen w-screen overflow-hidden bg-[#080B14]">
+      {/* Desktop sidebar */}
+      <motion.aside
+        animate={{ width: collapsed ? 72 : 240 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        className="hidden md:flex flex-col flex-shrink-0 relative overflow-hidden h-full"
+        style={{
+          width: collapsed ? 72 : 240,
+          background: '#0c1020',
+          borderRight: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <Sidebar />
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center text-white/40 hover:text-white transition-colors z-10"
+          style={{ background: '#1a2040', border: '1px solid rgba(255,255,255,0.1)' }}
         >
-          <Sidebar />
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center text-white/40 hover:text-white transition-colors z-10"
-            style={{ background: '#1a2040', border: '1px solid rgba(255,255,255,0.1)' }}
-          >
-            {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-          </button>
-        </motion.aside>
+          {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+        </button>
+      </motion.aside>
 
-        {/* Mobile sidebar */}
-        <AnimatePresence>
-          {mobileOpen && (
-            <>
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                onClick={() => setMobileOpen(false)}
-                className="fixed inset-0 z-40 md:hidden"
-                style={{ background: 'rgba(0,0,0,0.6)' }}
-              />
-              <motion.aside
-                initial={{ x: -280 }}
-                animate={{ x: 0 }}
-                exit={{ x: -280 }}
-                transition={{ duration: 0.3 }}
-                className="fixed left-0 top-0 h-full w-64 z-50 md:hidden flex flex-col"
-                style={{ background: '#0c1020', borderRight: '1px solid rgba(255,255,255,0.06)' }}
-              >
-                <Sidebar mobile />
-              </motion.aside>
-            </>
-          )}
-        </AnimatePresence>
-      </div>
-
+      {/* Mobile sidebar */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setMobileOpen(false)}
+              className="fixed inset-0 z-40 md:hidden"
+              style={{ background: 'rgba(0,0,0,0.6)' }}
+            />
+            <motion.aside
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ duration: 0.3 }}
+              className="fixed left-0 top-0 h-full w-64 z-50 md:hidden flex flex-col"
+              style={{ background: '#0c1020', borderRight: '1px solid rgba(255,255,255,0.06)' }}
+            >
+              <Sidebar mobile />
+            </motion.aside>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Main */}
       <div className="flex flex-col overflow-hidden min-w-0 w-full">
-
         {/* Mobile header */}
         <header className="md:hidden flex items-center justify-between px-4 py-4" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <button onClick={() => setMobileOpen(!mobileOpen)} className="text-white/60 hover:text-white">
@@ -194,7 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="w-6" />
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           {children}
         </main>
       </div>

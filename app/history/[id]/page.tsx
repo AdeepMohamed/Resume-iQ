@@ -71,8 +71,8 @@ export default function AnalysisDetailPage() {
         <div className="text-sm text-white/40">{formatDate(analysis.created_at)}</div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="glass-card p-5 col-span-2 md:col-span-1">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div className="glass-card p-5 sm:col-span-2 md:col-span-1">
           <div className="text-xs text-white/40 mb-3">ATS Score</div>
           <div className={`text-5xl font-bold ${getScoreColor(analysis.ats_score)}`}>{analysis.ats_score}</div>
           <div className="mt-3 h-1.5 rounded-full bg-white/10">

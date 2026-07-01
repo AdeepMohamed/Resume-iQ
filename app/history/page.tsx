@@ -98,31 +98,33 @@ export default function HistoryPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="glass-card-hover p-5 flex items-center gap-4"
+                className="glass-card-hover p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)' }}>
-                  <FileText size={18} className="text-indigo-400" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-sm truncate">{resume?.file_name || 'Resume'}</div>
-                  <div className="text-xs text-white/40 mt-0.5">{formatDate(a.created_at)}</div>
-                  {a.summary && <div className="text-xs text-white/40 mt-1 truncate">{a.summary.slice(0, 80)}…</div>}
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <div className={`text-2xl font-bold ${getScoreColor(a.ats_score)}`}>{a.ats_score}</div>
-                    <div className="text-xs text-white/30">ATS</div>
+                <div className="flex items-center gap-4 w-full sm:w-auto min-w-0">
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.2)' }}>
+                    <FileText size={18} className="text-indigo-400" />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm truncate">{resume?.file_name || 'Resume'}</div>
+                    <div className="text-xs text-white/40 mt-0.5">{formatDate(a.created_at)}</div>
+                    {a.summary && <div className="text-xs text-white/40 mt-1 truncate max-w-md">{a.summary}</div>}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between sm:justify-end gap-6 border-t border-white/5 pt-3 sm:pt-0 sm:border-0 w-full sm:w-auto">
+                  <div className="flex items-center gap-2">
+                    <div className={`text-2xl font-bold ${getScoreColor(a.ats_score)}`}>{a.ats_score}</div>
+                    <div className="text-xs text-white/30 font-medium">ATS</div>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <Link href={`/history/${a.id}`} className="p-2 rounded-lg text-white/30 hover:text-white hover:bg-white/5 transition-colors">
                       <ExternalLink size={15} />
                     </Link>
                     <button onClick={() => handleDelete(a.id)} className="p-2 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors">
                       <Trash2 size={15} />
                     </button>
+                    <ChevronRight size={16} className="text-white/20 hidden sm:block" />
                   </div>
-                  <ChevronRight size={16} className="text-white/20" />
                 </div>
               </motion.div>
             )
