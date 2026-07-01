@@ -34,7 +34,11 @@ export default function AnalyzePage() {
 
   const handleFile = (f: File) => {
     const ext = f.name.split('.').pop()?.toLowerCase()
-    if (ext !== 'pdf' && ext !== 'docx') {
+    const mime = f.type
+    const isPdf = mime === 'application/pdf' || ext === 'pdf'
+    const isDocx = mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || ext === 'docx'
+
+    if (!isPdf && !isDocx) {
       toast.error('Please upload a PDF or DOCX file')
       return
     }

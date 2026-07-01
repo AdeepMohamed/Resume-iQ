@@ -16,8 +16,26 @@ export async function POST(request: NextRequest) {
 
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
-    const fileName = file.name
-    const fileType = fileName.toLowerCase().endsWith('.pdf') ? 'pdf' : 'docx'
+    const fileName = file.name || ''
+    const mimeType = file.type || ''
+
+    let fileType: 'pdf' | 'docx' | null = null
+
+    if (mimeType === 'application/pdf' || fileName.toLowerCase().endsWith('.pdf')) {
+      fileType = 'pdf'
+    } else if (
+      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
+      fileName.toLowerCase().endsWith('.docx')
+    ) {
+      fileType = 'docx'
+    }
+
+    if (!fileType) {
+      return NextResponse.json(
+        { error: `Unsupported file type (${mimeType || 'unknown'}). Please upload a PDF or DOCX file.` },
+        { status: 400 }
+      )
+    }
 
     let text = ''
 
@@ -29,15 +47,9 @@ export async function POST(request: NextRequest) {
       const data = await parser.getText()
       text = data.text
     } else if (fileType === 'docx') {
-
       const mammoth = await import('mammoth')
       const result = await mammoth.extractRawText({ buffer })
       text = result.value
-    } else {
-      return NextResponse.json(
-        { error: 'Unsupported file type. Upload PDF or DOCX.' },
-        { status: 400 }
-      )
     }
 
     if (!text.trim()) {

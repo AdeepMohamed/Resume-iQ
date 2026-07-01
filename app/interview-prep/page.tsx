@@ -116,6 +116,20 @@ export default function InterviewPrepPage() {
                   onChange={async (e) => {
                     const file = e.target.files?.[0]
                     if (!file) return
+                    const ext = file.name.split('.').pop()?.toLowerCase()
+                    const mime = file.type
+                    const isPdf = mime === 'application/pdf' || ext === 'pdf'
+                    const isDocx = mime === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' || ext === 'docx'
+
+                    if (!isPdf && !isDocx) {
+                      toast.error('Please upload a PDF or DOCX file')
+                      return
+                    }
+                    if (file.size > 5 * 1024 * 1024) {
+                      toast.error('File too large (max 5MB)')
+                      return
+                    }
+
                     const toastId = toast.loading('Parsing resume...')
                     try {
                       const formData = new FormData()
